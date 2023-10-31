@@ -1,4 +1,4 @@
 [submodule "3rdparty/nerian-vision-software"]
 	path = 3rdparty/nerian-vision-software
 	url = git@github.com:Rightbot-robotics/nerian-vision-software.git
-
+	branch = sherlock/cpp/devel
