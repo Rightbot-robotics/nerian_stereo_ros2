@@ -228,16 +228,16 @@ void StereoNode::init() {
 
     // Obtain the parameters that are reported by the device and expose them
     updateParametersFromDevice();
-
+    std::cerr<< "internal Frame: " << internalFrame << std::endl;
     // Create publishers
-    disparityPublisher = this->create_publisher<sensor_msgs::msg::Image>("/nerian_stereo/disparity_map", 5);
-    leftImagePublisher = this->create_publisher<sensor_msgs::msg::Image>("/nerian_stereo/left_image", 5);
-    rightImagePublisher = this->create_publisher<sensor_msgs::msg::Image>("/nerian_stereo/right_image", 5);
-    thirdImagePublisher = this->create_publisher<sensor_msgs::msg::Image>("/nerian_stereo/color_image", 5);
+    disparityPublisher = this->create_publisher<sensor_msgs::msg::Image>("/" + internalFrame + "/disparity_map", 5);
+    leftImagePublisher = this->create_publisher<sensor_msgs::msg::Image>("/" + internalFrame + "/left_image", 5);
+    rightImagePublisher = this->create_publisher<sensor_msgs::msg::Image>("/" + internalFrame + "/right_image", 5);
+    thirdImagePublisher = this->create_publisher<sensor_msgs::msg::Image>("/" + internalFrame + "/color_image", 5);
 
     loadCameraCalibration();
 
-    cameraInfoPublisher = this->create_publisher<nerian_stereo::msg::StereoCameraInfo>("/nerian_stereo/stereo_camera_info", 1);
+    cameraInfoPublisher = this->create_publisher<nerian_stereo::msg::StereoCameraInfo>("/" + internalFrame + "/stereo_camera_info", 1);
     cloudPublisher = this->create_publisher<sensor_msgs::msg::PointCloud2>("/nerian_stereo/point_cloud", 5);
 
     transformBroadcaster = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
@@ -311,12 +311,12 @@ void StereoNode::processOneImageSet() {
         // Dump info about currently available topics (this can change when output channels are toggled)
         if ((frameNum==0) || (hasLeft!=hadLeft) || (hasRight!=hadRight) || (hasColor!=hadColor) || (hasDisparity!=hadDisparity)) {
             RCLCPP_INFO(this->get_logger(), "Topics currently being served, based on the device \"Output Channels\" settings:");
-            if (hasLeft) RCLCPP_INFO(this->get_logger(),  "  /nerian_stereo/left_image");
-            if (hasRight) RCLCPP_INFO(this->get_logger(), "  /nerian_stereo/right_image");
-            if (hasColor) RCLCPP_INFO(this->get_logger(), "  /nerian_stereo/color_image");
+            if (hasLeft) RCLCPP_INFO(this->get_logger(),  ("  /" + internalFrame + "/left_image").c_str());
+            if (hasRight) RCLCPP_INFO(this->get_logger(), ("  /" + internalFrame + "/right_image").c_str());
+            if (hasColor) RCLCPP_INFO(this->get_logger(), ("  /" + internalFrame + "/color_image").c_str());
             if (hasDisparity) {
-                RCLCPP_INFO(this->get_logger(), "  /nerian_stereo/disparity_map");
-                RCLCPP_INFO(this->get_logger(), "  /nerian_stereo/point_cloud");
+                RCLCPP_INFO(this->get_logger(), ("  /" + internalFrame + "/disparity_map").c_str());
+                RCLCPP_INFO(this->get_logger(), ("  /" + internalFrame + "/point_cloud").c_str());
             } else {
                 RCLCPP_WARN(this->get_logger(), "Disparity channel deactivated on device -> no disparity or point cloud data!");
             }
