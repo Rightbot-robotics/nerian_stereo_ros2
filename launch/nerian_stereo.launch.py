@@ -7,7 +7,7 @@ def generate_launch_description():
                 package='nerian_stereo',
                 executable='nerian_stereo_node',
                 parameters=[
-                    {'remote_host':                  '192.168.2.123'},
+                    {'remote_host':                  '192.168.1.124'},
                     {'remote_port':                  '7681'},
                     {'use_tcp':                       False},
 
@@ -21,7 +21,7 @@ def generate_launch_description():
                     {'color_code_disparity_map',      ''},
                     {'color_code_legend':             False},
 
-                    {'calibration_file':              ''},
+                    {'calibration_file':              '/app/vision_ws/src/sherlock_cv/nerian_stereo_ros2/launch/calib.yaml'},
                     {'q_from_calib_file':             False},
                     {'delay_execution':               0.0},
  

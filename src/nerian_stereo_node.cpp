@@ -182,6 +182,7 @@ void StereoNode::init() {
     this->declare_parameter("color_code_legend",             false);
     this->declare_parameter("top_level_frame",               "world");
     this->declare_parameter("internal_frame",                "nerian_stereo");
+    this->declare_parameter("camera_name",                "nerian_stereo");
     this->declare_parameter("remote_port",                   "7681");
     this->declare_parameter("remote_host",                   "0.0.0.0");
     this->declare_parameter("use_tcp",                       false);
@@ -211,6 +212,7 @@ void StereoNode::init() {
     colorCodeLegend = this->get_parameter("color_code_legend").as_bool();
     frame = this->get_parameter("top_level_frame").as_string();
     internalFrame = this->get_parameter("internal_frame").as_string();
+    cameraName = this->get_parameter("camera_name").as_string();
     remotePort = this->get_parameter("remote_port").as_string();
     remoteHost = this->get_parameter("remote_host").as_string();
     useTcp = this->get_parameter("use_tcp").as_bool();
@@ -230,15 +232,15 @@ void StereoNode::init() {
     updateParametersFromDevice();
     std::cerr<< "internal Frame: " << internalFrame << std::endl;
     // Create publishers
-    disparityPublisher = this->create_publisher<sensor_msgs::msg::Image>("/" + internalFrame + "/disparity_map", 5);
-    leftImagePublisher = this->create_publisher<sensor_msgs::msg::Image>("/" + internalFrame + "/left_image", 5);
-    rightImagePublisher = this->create_publisher<sensor_msgs::msg::Image>("/" + internalFrame + "/right_image", 5);
-    thirdImagePublisher = this->create_publisher<sensor_msgs::msg::Image>("/" + internalFrame + "/color_image", 5);
+    disparityPublisher = this->create_publisher<sensor_msgs::msg::Image>("/" + cameraName + "/disparity_map", 5);
+    leftImagePublisher = this->create_publisher<sensor_msgs::msg::Image>("/" + cameraName + "/left_image", 5);
+    rightImagePublisher = this->create_publisher<sensor_msgs::msg::Image>("/" + cameraName + "/right_image", 5);
+    thirdImagePublisher = this->create_publisher<sensor_msgs::msg::Image>("/" + cameraName + "/color_image", 5);
 
     loadCameraCalibration();
 
-    cameraInfoPublisher = this->create_publisher<nerian_stereo::msg::StereoCameraInfo>("/" + internalFrame + "/stereo_camera_info", 1);
-    cloudPublisher = this->create_publisher<sensor_msgs::msg::PointCloud2>("/nerian_stereo/point_cloud", 5);
+    cameraInfoPublisher = this->create_publisher<nerian_stereo::msg::StereoCameraInfo>("/" + cameraName + "/stereo_camera_info", 1);
+    cloudPublisher = this->create_publisher<sensor_msgs::msg::PointCloud2>("/" + cameraName + "/point_cloud", 5);
 
     transformBroadcaster = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
     currentTransform.header.stamp = this->get_clock()->now();
@@ -254,7 +256,7 @@ void StereoNode::init() {
 
     initDataChannelService();
     //initDynamicReconfigure();
-    publishTransform(); // initial transform
+    // publishTransform(); // initial transform
     prepareAsyncTransfer();
     // 2kHz timer for lower latency (stereoIteration will then block)
     timer = this->create_wall_timer(500us, std::bind(&StereoNode::stereoIteration, this));
@@ -311,12 +313,12 @@ void StereoNode::processOneImageSet() {
         // Dump info about currently available topics (this can change when output channels are toggled)
         if ((frameNum==0) || (hasLeft!=hadLeft) || (hasRight!=hadRight) || (hasColor!=hadColor) || (hasDisparity!=hadDisparity)) {
             RCLCPP_INFO(this->get_logger(), "Topics currently being served, based on the device \"Output Channels\" settings:");
-            if (hasLeft) RCLCPP_INFO(this->get_logger(),  ("  /" + internalFrame + "/left_image").c_str());
-            if (hasRight) RCLCPP_INFO(this->get_logger(), ("  /" + internalFrame + "/right_image").c_str());
-            if (hasColor) RCLCPP_INFO(this->get_logger(), ("  /" + internalFrame + "/color_image").c_str());
+            if (hasLeft) RCLCPP_INFO(this->get_logger(),  ("  /" + cameraName + "/left_image").c_str());
+            if (hasRight) RCLCPP_INFO(this->get_logger(), ("  /" + cameraName + "/right_image").c_str());
+            if (hasColor) RCLCPP_INFO(this->get_logger(), ("  /" + cameraName + "/color_image").c_str());
             if (hasDisparity) {
-                RCLCPP_INFO(this->get_logger(), ("  /" + internalFrame + "/disparity_map").c_str());
-                RCLCPP_INFO(this->get_logger(), ("  /" + internalFrame + "/point_cloud").c_str());
+                RCLCPP_INFO(this->get_logger(), ("  /" + cameraName + "/disparity_map").c_str());
+                RCLCPP_INFO(this->get_logger(), ("  /" + cameraName + "/point_cloud").c_str());
             } else {
                 RCLCPP_WARN(this->get_logger(), "Disparity channel deactivated on device -> no disparity or point cloud data!");
             }
@@ -718,6 +720,10 @@ void StereoNode::initPointCloud() {
 }
 
 void StereoNode::publishCameraInfo(rclcpp::Time stamp, const ImageSet& imageSet) {
+    if (firstCamInfoPublish) {
+        lastCamInfoPublish = stamp;
+        firstCamInfoPublish = false;
+    }
     if(camInfoMsg == NULL) {
         // Initialize the camera info structure
         camInfoMsg.reset(new nerian_stereo::msg::StereoCameraInfo);
@@ -830,7 +836,7 @@ void StereoNode::processDataChannels() {
         std::cout << "Orientation:" << std::setprecision(2) << std::fixed << " Roll " << (180.0*roll/M_PI) << " Pitch " << (180.0*pitch/M_PI) << " Yaw " << (180.0*yaw/M_PI) << std::endl;
         */
 
-        publishTransform();
+        // publishTransform();
     } else {
         // We must periodically republish due to ROS interval constraints
         /*
@@ -846,7 +852,7 @@ void StereoNode::processDataChannels() {
         currentTransform.transform.rotation.w = q.w();
         */
         currentTransform.header.stamp = now;
-        publishTransform();
+        // publishTransform();
     }
 }
 
@@ -887,6 +893,9 @@ rcl_interfaces::msg::SetParametersResult StereoNode::onSetParameters(std::vector
                     // TODO Frame name validation to only accept what ROS2 expects
                     internalFrame = parameter.as_string();
                     currentTransform.child_frame_id = internalFrame;
+                } else if (name == "camera_name") {
+                    // TODO Frame name validation to only accept what ROS2 expects
+                    cameraName = parameter.as_string();
                 } else {
                     RCLCPP_ERROR(this->get_logger(), "(Bug?) Unhandled internal parameter, cannot set '%s' to %s", name.c_str(), parameter.value_to_string().c_str());
                     result.successful = false;

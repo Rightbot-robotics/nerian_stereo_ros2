@@ -165,6 +165,7 @@ private:
     std::string remotePort;
     std::string frame; // outer frame (e.g. world)
     std::string internalFrame; // our private frame / Transform we publish
+    std::string cameraName; // Name of the camera
     std::string remoteHost;
     std::string calibFile;
     double execDelay;
@@ -181,6 +182,7 @@ private:
     cv::FileStorage calibStorage;
     nerian_stereo::msg::StereoCameraInfo::UniquePtr camInfoMsg;
     rclcpp::Time lastCamInfoPublish;
+    bool firstCamInfoPublish = true;
 
     // Active channels in the previous ImageSet
     bool hadLeft, hadRight, hadColor, hadDisparity;
