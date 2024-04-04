@@ -1,0 +1,28 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/app/vision_ws/build/aruco_based_localization",
+        "/app/vision_ws/install/aruco_based_localization/lib/python3.10/site-packages",
+        "/app/vision_ws/install/ros2_aruco_interfaces/local/lib/python3.10/dist-packages",
+        "/app/vision_ws/build/ros2_aruco",
+        "/app/vision_ws/install/ros2_aruco/lib/python3.10/site-packages",
+        "/app/vision_ws/build/manual_pose_detection",
+        "/app/vision_ws/install/manual_pose_detection/lib/python3.10/site-packages",
+        "/app/vision_ws/install/rightbot_interfaces/local/lib/python3.10/dist-packages",
+        "/app/vision_ws/install/nerian_stereo/local/lib/python3.10/dist-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/app/vision_ws/build/aruco_based_localization",
+        "/app/vision_ws/install/aruco_based_localization/lib/python3.10/site-packages",
+        "/app/vision_ws/install/ros2_aruco_interfaces/local/lib/python3.10/dist-packages",
+        "/app/vision_ws/build/ros2_aruco",
+        "/app/vision_ws/install/ros2_aruco/lib/python3.10/site-packages",
+        "/app/vision_ws/build/manual_pose_detection",
+        "/app/vision_ws/install/manual_pose_detection/lib/python3.10/site-packages",
+        "/app/vision_ws/install/rightbot_interfaces/local/lib/python3.10/dist-packages",
+        "/app/vision_ws/install/nerian_stereo/local/lib/python3.10/dist-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ]
+}

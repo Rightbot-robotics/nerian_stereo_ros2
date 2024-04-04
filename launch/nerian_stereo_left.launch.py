@@ -5,7 +5,9 @@ def generate_launch_description():
     ld = LaunchDescription()
     static_tf = Node(package = "tf2_ros", 
                        executable = "static_transform_publisher",
-                       arguments = ["1.2467291677843186", "1.1195113644673267", "1.0404034635424506", "-1.9191350101609894", "0.07039282605494498", "-1.9496405385819355", "DC_hinge", "nerian_stereo_left_color_optical_frame"])
+                       arguments = ["1.181", "1.214", "1.028", "-2.01", "-0.05", "-1.568", "DC_hinge", "nerian_stereo_left_color_optical_frame"])
+                    #    arguments = ["1.18596", "1.209708", "0.998358", "-2.000644", "0.001864", "-1.636583", "DC_hinge", "nerian_stereo_left_color_optical_frame"])
+                    #    arguments = ["1.234", "1.125", "1.037", "-1.841", "0.025", "-1.855", "DC_hinge", "nerian_stereo_left_color_optical_frame"])
 
     nerian_stereo_node = Node(
                 package='nerian_stereo',
@@ -26,7 +28,7 @@ def generate_launch_description():
                     {'color_code_disparity_map',      ''},
                     {'color_code_legend':             False},
 
-                    {'calibration_file':              '/app/vision_ws/src/sherlock_cv/nerian_stereo_ros2/launch/left_calib_0.07_20_3.yaml'},
+                    {'calibration_file':              '/app/vision_ws/src/sherlock_cv/nerian_stereo_ros2/launch/left_calib.yaml'},
                     {'q_from_calib_file':             False},
                     {'delay_execution':               0.0},
  

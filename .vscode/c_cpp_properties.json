@@ -1,0 +1,24 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/app/vision_ws/install/ros2_aruco_interfaces/include/**",
+        "/app/vision_ws/install/rightbot_interfaces/include/**",
+        "/app/vision_ws/install/nerian_stereo/include/**",
+        "/opt/ros/humble/include/**",
+        "/app/vision_ws/src/sherlock_cv/nerian_stereo_ros2/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}

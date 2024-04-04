@@ -6,7 +6,8 @@ def generate_launch_description():
 
     static_tf = Node(package = "tf2_ros", 
                        executable = "static_transform_publisher",
-                       arguments = ["1.1581573368453788", "-0.8479361882614338", "1.0324534603267161", "-1.8240126209842416", "-0.07940738966674082", "-1.1844186717161602", "DC_hinge", "nerian_stereo_right_color_optical_frame"])
+                       arguments = ["1.091", "-1.004", "0.963", "-1.115", "-0.011", "-1.559", "DC_hinge", "nerian_stereo_right_color_optical_frame"])
+                    #    arguments = ["1.162", "-0.831", "1.035", "-1.460", "-0.160", "-1.812", "DC_hinge", "nerian_stereo_right_color_optical_frame"])
 
     nerian_stereo_node = Node(
                 package='nerian_stereo',
