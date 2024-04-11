@@ -14,13 +14,13 @@ def generate_launch_description():
                 package='nerian_stereo',
                 executable='nerian_stereo_node',
                 parameters=[
-                    {'remote_host':                  '192.168.10.10'}, # old nerian camera
+                    {'remote_host':                  '192.168.10.12'}, # old nerian camera
                     {'remote_port':                  '7681'},
                     {'use_tcp':                       True},
 
                     {'top_level_frame':               'world'},
-                    {'internal_frame':                'nerian_stereo_left_color_optical_frame'},
-                    {'camera_name':                   'nerian_stereo_left'},
+                    {'internal_frame':                'nerian_stereo_right_color_optical_frame'},
+                    {'camera_name':                   'nerian_stereo_right'},
                     {'ros_coordinate_system':         False},
                     {'ros_timestamps':                True},
 
