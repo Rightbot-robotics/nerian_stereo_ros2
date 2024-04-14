@@ -241,7 +241,6 @@ void StereoNode::init() {
 
     cameraInfoPublisher = this->create_publisher<nerian_stereo::msg::StereoCameraInfo>("/" + cameraName + "/stereo_camera_info", 1);
     cloudPublisher = this->create_publisher<sensor_msgs::msg::PointCloud2>("/" + cameraName + "/point_cloud", 5);
-    filteredCloudPublisher = this->create_publisher<sensor_msgs::msg::PointCloud2>("/" + cameraName + "/point_cloud_filtered", 5);
 
     transformBroadcaster = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
     currentTransform.header.stamp = this->get_clock()->now();
@@ -263,71 +262,6 @@ void StereoNode::init() {
     timer = this->create_wall_timer(500us, std::bind(&StereoNode::stereoIteration, this));
 
     reactToParameterUpdates = true;
-
-    tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
-    tf_buffer_->setUsingDedicatedThread(true); // Set to use dedicated thread
-    tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
-}
-
-void pclFilterHandler(const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
-    
-    try {
-        geometry_msgs::msg::TransformStamped cam_to_base_tf = tf_buffer_->lookupTransform("base_link", "nerian_stereo_right_color_optical_frame", tf2::TimePointZero);
-
-        // Transform point cloud to base frame
-        sensor_msgs::msg::PointCloud2 transformed_msg;
-        tf2::doTransform(*msg, transformed_msg, cam_to_base_tf);
-
-        pcl::PCLPointCloud2 pcl_pc2;
-        pcl_conversions::toPCL(transformed_msg, pcl_pc2);
-
-        pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
-        pcl::fromPCLPointCloud2(pcl_pc2, *cloud);
-
-        // ######################### Add Filters here ##########################
-
-        passThroughFilter(cloud, "z", 0, 3.0);
-        passThroughFilter(cloud, "x", 2.1, 3.2);
-        passThroughFilter(cloud, "y", -3.0, 3.0);
-        voxelGridFilter(cloud, 0.03);
-        statisticalOutlierFilter(cloud, 20, 0.4);
-
-        // std::cerr << "right PointCloud after filtering: " << cloud->width * cloud->height << std::endl;
-
-        pcl::PCLPointCloud2 pcl_pc2_filtered;
-        pcl::toPCLPointCloud2(*cloud, pcl_pc2_filtered);
-
-        auto filtered_msg = std::make_shared<sensor_msgs::msg::PointCloud2>();
-        pcl_conversions::fromPCL(pcl_pc2_filtered, *filtered_msg);
-        
-    } catch (tf2::TransformException &ex) {
-        RCLCPP_ERROR(this->get_logger(), "Transform lookup failed: %s", ex.what());
-        return;
-    }
-}
-void StereoNode::passThroughFilter(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, std::string axis, double min, double max) {
-    pcl::PassThrough<pcl::PointXYZ> pass;
-    pass.setInputCloud(cloud);
-    pass.setFilterFieldName(axis);
-    pass.setFilterLimits(min, max);
-    pass.filter(*cloud);
-}
-
-void StereoNode::statisticalOutlierFilter(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int meanK = 50, double stddevMulThresh = 0.1) {
-
-    pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sof;
-    sof.setInputCloud(cloud);
-    sof.setMeanK(meanK);  // Number of neighbors to analyze for each point
-    sof.setStddevMulThresh(stddevMulThresh);  // Standard deviation multiplier
-    sof.filter(*cloud);
-}
-
-void StereoNode::voxelGridFilter(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, float leafSize = 0.01) {
-            
-    pcl::VoxelGrid<pcl::PointXYZ> vox;
-    vox.setInputCloud (cloud);
-    vox.setLeafSize (leafSize, leafSize, leafSize);
-    vox.filter (*cloud);
 }
 
 void StereoNode::initDataChannelService() {
@@ -561,7 +495,6 @@ void StereoNode::publishPointCloudMsg(ImageSet& imageSet, rclcpp::Time stamp) {
     }
 
     pointCloudMsg = new sensor_msgs::msg::PointCloud2(); // publish() will take ownership later
-    filteredPointCloudMsg = new sensor_msgs::msg::PointCloud2(); // publish() will take ownership later
     initPointCloud(); // reinitialize new point cloud metadata
 
     // Create message object and set header
@@ -613,9 +546,8 @@ void StereoNode::publishPointCloudMsg(ImageSet& imageSet, rclcpp::Time stamp) {
                 break;
         }
     }
-    // TODO: convert and publish point cloud data here
+
     cloudPublisher->publish(sensor_msgs::msg::PointCloud2::UniquePtr(pointCloudMsg));
-    filteredCloudPublisher->publish(sensor_msgs::msg::PointCloud2::UniquePtr(pointCloudMsg));
 }
 
 template <StereoNode::PointCloudColorMode colorMode> void StereoNode::copyPointCloudIntensity(ImageSet& imageSet) {

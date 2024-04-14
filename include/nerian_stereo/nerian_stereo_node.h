@@ -39,17 +39,6 @@
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/opencv.hpp>
 
-#include <pcl_conversions/pcl_conversions.h>
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl/filters/voxel_grid.h>
-#include <pcl/filters/passthrough.h>
-#include <pcl/filters/statistical_outlier_removal.h>
-#include <tf2_ros/buffer.h>
-#include <tf2_ros/transform_listener.h>
-#include <tf2_sensor_msgs/tf2_sensor_msgs.hpp>
-#include <geometry_msgs/msg/transform_stamped.h>
-
 #include <colorcoder.h>
 
 //#include <nerian_stereo/NerianStereoConfig.h>
@@ -80,7 +69,6 @@ using namespace visiontransfer;
  */
 
 namespace nerian_stereo {
-
 
 class StereoNode: public rclcpp::Node {
 public:
@@ -126,8 +114,6 @@ public:
         debugMessagesParameters = enable;
     }
 
-
-
 private:
     enum PointCloudColorMode {
         RGB_SEPARATE,
@@ -137,15 +123,12 @@ private:
     };
 
     rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr cloudPublisher;
-    rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr filteredCloudPublisher;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr disparityPublisher;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr leftImagePublisher;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr rightImagePublisher;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr thirdImagePublisher;
     rclcpp::Publisher<nerian_stereo::msg::StereoCameraInfo>::SharedPtr cameraInfoPublisher;
 
-    std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
-    std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
     std::unique_ptr<tf2_ros::TransformBroadcaster> transformBroadcaster;
 
     // Connection to parameter server on device
@@ -196,7 +179,6 @@ private:
     std::unique_ptr<ColorCoder> colCoder;
     cv::Mat_<cv::Vec3b> colDispMap;
     sensor_msgs::msg::PointCloud2* pointCloudMsg;
-    sensor_msgs::msg::PointCloud2* filteredPointCloudMsg;
     cv::FileStorage calibStorage;
     nerian_stereo::msg::StereoCameraInfo::UniquePtr camInfoMsg;
     rclcpp::Time lastCamInfoPublish;
@@ -284,49 +266,6 @@ private:
      * \brief Obtain the parameter enumeration from the device and relay them to ROS2 parameters
      */
     void updateParametersFromDevice();
-
-    /**
-     * \brief Filters and publishes a point cloud message.
-     *
-     * @param msg A shared pointer to a sensor_msgs::msg::PointCloud2 message containing the point cloud data.
-     *
-     * @throws None
-     */
-    void pclFilterHandler(const sensor_msgs::msg::PointCloud2::SharedPtr msg);
-
-    /**
-     * \brief Apply pass-through filter (adjust the limits based on your data)
-     *
-     * @param cloud the point cloud to be filtered
-     * @param axis the axis along which to perform the filtering
-     * @param min the minimum value for the filter
-     * @param max the maximum value for the filter
-     *
-     * @throws None
-     */
-    void passThroughFilter(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, std::string axis, double min, double max);
-
-
-    /**
-     * \brief Applies statistical outlier removal filter to the given point cloud.
-     *
-     * @param cloud pointer to the point cloud to be filtered
-     * @param meanK number of neighbors to analyze for each point (default: 50)
-     * @param stddevMulThresh standard deviation multiplier threshold (default: 0.1)
-     *
-     * @throws ErrorType description of error
-     */
-    void statisticalOutlierFilter(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int meanK = 50, double stddevMulThresh = 0.1);
-
-    /**
-     * \brief Filters a point cloud using voxel grid filtering.
-     *
-     * @param cloud A pointer to the point cloud to be filtered.
-     * @param leafSize The size of the leaf in the voxel grid filter (default: 0.01)
-     *
-     * @throws ErrorType Description of any potential errors.
-     */
-    void voxelGridFilter(const pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, float leafSize = 0.01);
 };
 
 
