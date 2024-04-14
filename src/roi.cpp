@@ -31,7 +31,7 @@ float mapAngleToHeight(float angle, float angleMin, float angleMax, float height
 class JointStateSubscriber : public rclcpp::Node
 {
     public:
-        JointStateSubscriber() : Node("joint_state_subscriber")
+        JointStateSubscriber() : Node("dynamic_roi_node")
         {
             // Search for Nerian stereo devices
             visiontransfer::DeviceEnumeration deviceEnum;
