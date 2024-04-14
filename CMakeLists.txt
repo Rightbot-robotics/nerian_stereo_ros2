@@ -161,8 +161,26 @@ endif()
 target_link_libraries(nerian_stereo_node ${OpenCV_LIBS} visiontransfer)
 target_link_directories(nerian_stereo_node PRIVATE ${VISION_TRANSFER_LINKDIR})
 
+
+add_executable(roi
+    src/roi.cpp
+    ${COLORCODER_SOURCE_FILE}
+)
+ament_target_dependencies(roi rclcpp sensor_msgs)
+if(${ROS2_IS_LEGACY} EQUAL 1)
+    rosidl_target_interfaces(roi ${PROJECT_NAME} "rosidl_typesupport_cpp")
+else()
+    rosidl_get_typesupport_target(cpp_typesupport_target ${PROJECT_NAME} "rosidl_typesupport_cpp")
+    target_link_libraries(roi "${cpp_typesupport_target}")
+endif()
+target_link_libraries(roi ${OpenCV_LIBS} visiontransfer)
+target_link_directories(roi PRIVATE ${VISION_TRANSFER_LINKDIR})
+
+
+
 install(TARGETS
   nerian_stereo_node
+  roi
   DESTINATION lib/${PROJECT_NAME}
 )
 install(DIRECTORY
