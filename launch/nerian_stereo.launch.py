@@ -26,7 +26,7 @@ def generate_launch_description():
                     {'color_code_disparity_map',      ''},
                     {'color_code_legend':             False},
 
-                    {'calibration_file':              '/app/vision_ws/src/sherlock_cv/nerian_stereo_ros2/launch/left_calib_11_4_2024.yaml'},
+                    {'calibration_file':              '/app/vision_ws/src/sherlock_cv/nerian_stereo_ros2/launch/left_calib_29_4_2024.yaml'},
                     {'q_from_calib_file':             False},
                     {'delay_execution':               0.0},
  
