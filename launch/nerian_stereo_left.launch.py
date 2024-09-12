@@ -11,13 +11,13 @@ def generate_launch_description():
                 package='nerian_stereo',
                 executable='nerian_stereo_node',
                 parameters=[
-                    {'remote_host':                  '192.168.10.10'}, # old nerian camera
+                    {'remote_host':                  '192.168.10.12'}, # old nerian camera
                     {'remote_port':                  '7681'},
                     {'use_tcp':                       True},
 
                     {'top_level_frame':               'world'},
-                    {'internal_frame':                'nerian_stereo_left_color_optical_frame'},
-                    {'camera_name':                   'nerian_stereo_left'},
+                    {'internal_frame':                'nerian_stereo_color_optical_frame'},
+                    {'camera_name':                   'nerian_stereo'},
                     {'ros_coordinate_system':         False},
                     {'ros_timestamps':                True},
 
@@ -26,13 +26,14 @@ def generate_launch_description():
                     {'color_code_disparity_map',      ''},
                     {'color_code_legend':             False},
 
-                    {'calibration_file':              '/app/vision_ws/src/sherlock_cv/nerian_stereo_ros2/launch/left_calib_0.07_20_3.yaml'},
+                    {'calibration_file':              ''}, #/app/vision_ws/src/sherlock_cv/nerian_stereo_ros2/launch/left_calib_0.07_20_3.yaml'},
                     {'q_from_calib_file':             False},
                     {'delay_execution':               0.0},
  
                 ]
             )
-    ld.add_action(static_tf)
+
+    # ld.add_action(static_tf)
     ld.add_action(nerian_stereo_node)
     return ld
 

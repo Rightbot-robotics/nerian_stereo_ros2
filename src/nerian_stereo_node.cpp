@@ -239,7 +239,8 @@ void StereoNode::init() {
 
     loadCameraCalibration();
 
-    cameraInfoPublisher = this->create_publisher<nerian_stereo::msg::StereoCameraInfo>("/" + cameraName + "/stereo_camera_info", 1);
+    cameraInfoPublisherLeft = this->create_publisher<sensor_msgs::msg::CameraInfo>("/" + cameraName + "/camera_info_left", 1);
+    cameraInfoPublisherRight = this->create_publisher<sensor_msgs::msg::CameraInfo>("/" + cameraName + "/camera_info_right", 1);
     cloudPublisher = this->create_publisher<sensor_msgs::msg::PointCloud2>("/" + cameraName + "/point_cloud", 5);
 
     transformBroadcaster = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
@@ -337,7 +338,7 @@ void StereoNode::processOneImageSet() {
             publishPointCloudMsg(imageSet, stamp);
         }
 
-        if(cameraInfoPublisher != NULL && cameraInfoPublisher->get_subscription_count() > 0) {
+        if((cameraInfoPublisherLeft != NULL && cameraInfoPublisherLeft->get_subscription_count() > 0) || (cameraInfoPublisherRight != NULL && cameraInfoPublisherRight->get_subscription_count() > 0)) {
             publishCameraInfo(stamp, imageSet);
         }
 
@@ -789,7 +790,12 @@ void StereoNode::publishCameraInfo(rclcpp::Time stamp, const ImageSet& imageSet)
         camInfoMsg->header.stamp = stamp;
         camInfoMsg->left_info.header.stamp = stamp;
         camInfoMsg->right_info.header.stamp = stamp;
-        cameraInfoPublisher->publish(*camInfoMsg);
+
+        camInfoMsgLeft = std::make_unique<sensor_msgs::msg::CameraInfo>(camInfoMsg->left_info);
+        camInfoMsgRight = std::make_unique<sensor_msgs::msg::CameraInfo>(camInfoMsg->right_info);
+
+        cameraInfoPublisherLeft->publish(*camInfoMsgLeft);
+        cameraInfoPublisherRight->publish(*camInfoMsgRight);
 
         lastCamInfoPublish = stamp;
     }

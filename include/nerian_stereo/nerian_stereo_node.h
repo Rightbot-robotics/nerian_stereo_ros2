@@ -31,6 +31,7 @@
 
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/msg/image.hpp>
+#include <sensor_msgs/msg/camera_info.hpp>
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/LinearMath/Matrix3x3.h>
 #include <tf2_ros/transform_broadcaster.h>
@@ -127,7 +128,8 @@ private:
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr leftImagePublisher;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr rightImagePublisher;
     rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr thirdImagePublisher;
-    rclcpp::Publisher<nerian_stereo::msg::StereoCameraInfo>::SharedPtr cameraInfoPublisher;
+    rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr cameraInfoPublisherLeft;
+    rclcpp::Publisher<sensor_msgs::msg::CameraInfo>::SharedPtr cameraInfoPublisherRight;
 
     std::unique_ptr<tf2_ros::TransformBroadcaster> transformBroadcaster;
 
@@ -181,6 +183,8 @@ private:
     sensor_msgs::msg::PointCloud2* pointCloudMsg;
     cv::FileStorage calibStorage;
     nerian_stereo::msg::StereoCameraInfo::UniquePtr camInfoMsg;
+    sensor_msgs::msg::CameraInfo::UniquePtr camInfoMsgLeft;
+    sensor_msgs::msg::CameraInfo::UniquePtr camInfoMsgRight;
     rclcpp::Time lastCamInfoPublish;
     bool firstCamInfoPublish = true;
 
